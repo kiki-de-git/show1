@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>“虚拟产品粉红税”调查数据看板</title>
+  <!-- 引入 ECharts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    body {
+      font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background-color: #f4f7f6;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #333;
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .header p {
+      color: #666;
+      margin-top: 10px;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      /* 两列布局 */
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .chart-box {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      height: 400px;
+      /* 固定高度 */
+    }
+
+    h2 {
+      font-size: 18px;
+      color: #333;
+      border-left: 4px solid #5470c6;
+      padding-left: 10px;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    /* AI Section Styles */
+    .ai-section {
+      grid-column: 1 / -1;
+      /* 跨越两列 */
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      border-radius: 12px;
+      padding: 30px;
+      margin-top: 20px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .ai-header h2 {
+      margin: 0;
+      border: none;
+      font-size: 22px;
+      background: linear-gradient(90deg, #5470c6, #91cc75);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .ai-controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .ai-btn {
+      background-color: #5470c6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .ai-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(84, 112, 198, 0.3);
+    }
+
+    .ai-btn.secondary {
+      background-color: #91cc75;
+    }
+
+    .ai-btn.secondary:hover {
+      box-shadow: 0 4px 8px rgba(145, 204, 117, 0.3);
+    }
+
+    .ai-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .ai-output {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      min-height: 100px;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      color: #444;
+      font-size: 15px;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, .3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* 手机端适配：变为单列 */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>“虚拟产品粉红税”调查核心数据看板</h1>
+    <p>正大杯参赛团队数据分析组 | 样本量：101份</p>
+  </div>
+
+  <div class="container">
+    <!-- 图表1 -->
+    <div class="chart-box">
+      <h2>1. 虚拟粉红税“重灾区” (提及频次)</h2>
+      <div id="chart1" style="width: 100%; height: 340px;"></div>
+    </div>
+
+    <!-- 图表2 -->
+    <div class="chart-box">
+      <h2>2. 消费者归因分析 (为什么会有？)</h2>
+      <div id="chart2" style="width: 100%; height: 340px;"></div>
+    </div>
+
+    <!-- 图表3 -->
+    <div class="chart-box">
+      <h2>3. 遭遇粉红税后的行为反馈</h2>
+      <div id="chart3" style="width: 100%; height: 340px;"></div>
+    </div>
+
+    <!-- 图表4 -->
+    <div class="chart-box">
+      <h2>4. 不同性别的应对策略差异</h2>
+      <div id="chart4" style="width: 100%; height: 340px;"></div>
+    </div>
+
+    <!-- AI 分析区域 -->
+    <div class="ai-section">
+      <div class="ai-header">
+        <h2>✨ AI 智能分析实验室</h2>
+      </div>
+      <p style="color: #666; margin-bottom: 20px;">基于 Gemini 大模型，实时解读上方图表数据。</p>
+      <div class="ai-controls">
+        <button class="ai-btn" onclick="generateAnalysis()">
+          <span>✨ 生成深度洞察报告</span>
+        </button>
+        <button class="ai-btn secondary" onclick="generateRecommendations()">
+          <span>🛡️ 获取避坑与维权指南</span>
+        </button>
+      </div>
+      <div id="aiOutput" class="ai-output">请点击上方按钮，AI 将为您分析数据...</div>
+    </div>
+  </div>
+
+  <script>
+    // --- 准备数据 (基于之前的 Python 分析结果) ---
+    // 1. 重灾区数据
+    const productData = [
+      { value: 53, name: '游戏皮肤/礼包' },
+      { value: 49, name: '虚拟形象/装扮' },
+      { value: 45, name: '女性向内容(小说/课)' },
+      { value: 38, name: '音视频会员' },
+      { value: 35, name: '工具软件' }
+    ];
+
+    // 2. 归因数据
+    const reasonData = [
+      { value: 64, name: '利用颜值/情感营销' },
+      { value: 59, name: '女性付费意愿强' },
+      { value: 47, name: '隐性歧视/割韭菜' },
+      { value: 34, name: '设计定制成本高' }
+    ];
+
+    // 3. 行为反馈数据
+    const reactionData = [
+      { value: 28, name: '寻找平替' },
+      { value: 25, name: '视价格差而定' },
+      { value: 19, name: '无奈妥协/刚需' },
+      { value: 17, name: '购买普通版' },
+      { value: 12, name: '直接抵制' }
+    ];
+
+    // 4. 性别差异数据 (近似比例)
+    const genderData = {
+      categories: ['寻找平替', '购买普通版', '无奈妥协', '视情况而定', '直接抵制'],
+      female: [29, 13, 19, 25, 14], // 女性数据
+      male: [25, 25, 19, 25, 6]   // 男性数据
+    };
+
+    // --- 初始化图表 ---
+
+    // Chart 1: 条形图 (重灾区)
+    const chart1 = echarts.init(document.getElementById('chart1'));
+    chart1.setOption({
+      tooltip: { trigger: 'axis' },
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+      xAxis: { type: 'value' },
+      yAxis: { type: 'category', data: productData.map(item => item.name).reverse() },
+      series: [{
+        name: '提及次数',
+        type: 'bar',
+        data: productData.map(item => item.value).reverse(),
+        itemStyle: { color: '#5470c6' },
+        label: { show: true, position: 'right' }
+      }]
+    });
+
+    // Chart 2: 条形图 (归因)
+    const chart2 = echarts.init(document.getElementById('chart2'));
+    chart2.setOption({
+      tooltip: { trigger: 'axis' },
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+      xAxis: { type: 'value' },
+      yAxis: { type: 'category', data: reasonData.map(item => item.name).reverse() },
+      series: [{
+        name: '提及次数',
+        type: 'bar',
+        data: reasonData.map(item => item.value).reverse(),
+        itemStyle: { color: '#91cc75' },
+        label: { show: true, position: 'right' }
+      }]
+    });
+
+    // Chart 3: 环形图 (行为)
+    const chart3 = echarts.init(document.getElementById('chart3'));
+    chart3.setOption({
+      tooltip: { trigger: 'item' },
+      legend: { orient: 'vertical', left: 'left', top: 'center' },
+      series: [{
+        name: '应对行为',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        center: ['60%', '50%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 5,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: { show: false },
+        emphasis: {
+          label: { show: true, fontSize: 16, fontWeight: 'bold' }
+        },
+        data: reactionData
+      }]
+    });
+
+    // Chart 4: 分组柱状图 (性别差异)
+    const chart4 = echarts.init(document.getElementById('chart4'));
+    chart4.setOption({
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      legend: { data: ['女性', '男性'] },
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+      xAxis: { type: 'category', data: genderData.categories },
+      yAxis: { type: 'value', name: '占比(%)' },
+      series: [
+        {
+          name: '女性',
+          type: 'bar',
+          data: genderData.female,
+          itemStyle: { color: '#ee6666' }
+        },
+        {
+          name: '男性',
+          type: 'bar',
+          data: genderData.male,
+          itemStyle: { color: '#73c0de' }
+        }
+      ]
+    });
+
+    // 窗口大小改变时重绘
+    window.addEventListener('resize', function () {
+      chart1.resize();
+      chart2.resize();
+      chart3.resize();
+      chart4.resize();
+    });
+
+    // --- Gemini AI 集成 ---
+    const apiKey = ""; // 运行时自动注入
+
+    async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await fetch(url, options);
+          if (response.ok) return response;
+          if (response.status !== 429 && response.status < 500) {
+            return response;
+          }
+        } catch (err) {
+          console.warn(`Attempt ${i + 1} failed. Retrying...`);
+        }
+        await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
+      }
+      throw new Error('网络请求失败，请检查连接。');
+    }
+
+    async function callGemini(userPrompt, systemRole) {
+      const outputDiv = document.getElementById('aiOutput');
+      const btns = document.querySelectorAll('.ai-btn');
+
+      // UI Loading State
+      btns.forEach(b => b.disabled = true);
+      outputDiv.innerHTML = '<div style="display:flex; align-items:center; gap:10px;"><span class="loading"></span> 正在分析 101 份样本数据，请稍候...</div>';
+
+      const contextData = `
+            当前问卷调查数据如下：
+            1. [粉红税高发区]：${JSON.stringify(productData)}。
+            2. [归因分析]：${JSON.stringify(reasonData)}。
+            3. [行为反馈]：${JSON.stringify(reactionData)}。
+            4. [性别差异]：${JSON.stringify(genderData)}。
+            `;
+
+      const fullPrompt = `背景数据：${contextData}\n\n任务指令：${userPrompt}`;
+
+      try {
+        const response = await fetchWithRetry(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: fullPrompt }] }],
+              systemInstruction: { parts: [{ text: systemRole }] }
+            })
+          }
+        );
+
+        if (!response.ok) throw new Error('API Error');
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "未能生成内容，请重试。";
+
+        // Simple formatting
+        outputDiv.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+
+      } catch (error) {
+        outputDiv.innerHTML = `<span style="color:red;">分析失败：请稍后再试。(${error.message})</span>`;
+      } finally {
+        btns.forEach(b => b.disabled = false);
+      }
+    }
+
+    function generateAnalysis() {
+      const prompt = "请作为一名社会学数据分析师，对上述数据进行深度解读。重点分析：1. 虚拟产品中粉红税的隐蔽性；2. 消费者对‘颜值付费’的矛盾心理；3. 性别差异反映出的维权意识觉醒。请输出一段适合放入‘正大杯’调研报告‘数据分析’章节的专业文字，字数300字左右。";
+      const role = "你是一名为‘正大杯’市场调研大赛服务的专业数据分析师，语言风格学术、严谨且具有洞察力。";
+      callGemini(prompt, role);
+    }
+
+    function generateRecommendations() {
+      const prompt = "基于数据（特别是消费者反馈和归因），请提出3条针对消费者的具体避坑建议，以及3条针对市场监管部门的政策建议。建议要具体、可行。";
+      const role = "你是一名维护消费者权益的政策顾问，擅长提出建设性的解决方案。";
+      callGemini(prompt, role);
+    }
+  </script>
+</body>
+
+</html>
